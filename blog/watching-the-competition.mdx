@@ -1,0 +1,121 @@
+---
+title: 'Watching the Competition, Politely'
+abstract: 'I built a small system that keeps an eye on competitors: their pricing pages, blogs, news, even job postings. It figures out what actually changed, turns the noise into clean structured signals, and shows it all in a dashboard. This is the story of the decisions that were actually interesting, including why I refused to make it an "AI agent," how I kept the language-model bill near zero, and why I finally gave a data project a frontend it deserved.'
+date: '2026-06-10'
+banner: /static/articles/compete-banner.jpg
+bannerCredit: 'bg by: <a href="https://unsplash.com/" target="_blank" rel="noopener noreferrer">Unsplash</a>'
+---
+
+
+## Hello again, friend!
+
+Quick confession: I like watching how companies move. Who quietly bumped their prices, who just shipped a new model, who suddenly posted twelve infra jobs across three cities (which usually means something is on the way).
+
+Doing this by hand is miserable. You end up with forty browser tabs, a stale spreadsheet, and the nagging feeling that you missed the one thing that mattered. So I built a thing. It's called **compete**. It visits a list of competitors on a schedule, figures out what changed, asks a language model to turn that into clean structured "signals," stores all of it, and shows it in a dashboard I actually like looking at.
+
+If you just want to click around instead of reading me ramble, here you go:
+
+<a className="button" href="https://steryl.yerradouani.me" target="_blank" rel="noopener noreferrer">Try the live demo</a>
+
+This isn't a tutorial. It's more me walking through the decisions that were actually interesting, the ones where I had to stop and think instead of reaching for the default.
+
+
+## I didn't want an "AI agent"
+
+Right now everything is an agent. Autonomous, tool-using, plans-its-own-work agents. It sounds great and it demos great. For a project like this, I think it's mostly a bad idea.
+
+Here's my reasoning. I don't want a clever improviser deciding what to scrape at 3am, and I really don't want it inventing a "fact" about a competitor that never happened. When you're going to trust the output, predictable beats clever.
+
+So I gave the model exactly one job, and a boring one. Take a chunk of text we already know has changed, and return a strict little object that looks like this:
+
+```python
+class Signal(BaseModel):
+    signal_type: SignalType   # pricing_change, product_launch, funding_news, ...
+    title: str
+    summary: str              # at most two sentences
+    entities: list[str]       # products / people mentioned
+    significance: int         # 1 to 5, the model's best guess
+    confidence: float         # 0 to 1
+```
+
+That's the whole job. No tools, no planning, no "let me go think about this." I used [instructor](https://python.useinstructor.com/) to force the model to return that exact shape, and if it hands back garbage, the code feeds the error back and asks it to try one more time. If it fails twice, we log it and move on. One bad page can't take down the whole run.
+
+The only agent-like behavior in the entire project is that single retry. And it's enough. Nothing the model says ever turns into an action. It turns into data, and then that data gets checked. I'll take that trade every time.
+
+
+## The part that keeps the bill near zero
+
+If you call a model on every page on every run, you're paying to re-read pages that didn't change. Most competitor pages don't change, or they change by one rotating banner and a timestamp. Paying a model to "analyze" that is silly.
+
+So before the model sees anything, the text has to clear two cheap checks:
+
+1. **A plain hash.** Normalize the page text, hash it. Same hash as last time? Done, nothing changed.
+2. **An embedding check.** If the hash is different, compare the new text to the old version with cosine similarity. 92% similar? That's a typo fix or a reshuffled sentence, skip it. Only a real difference wakes up the expensive part.
+
+The model never decides whether something changed. That's plain, reproducible math. The model only ever explains what a real change means.
+
+One detail I'm weirdly happy about: the default embedding isn't a paid API either. It's a tiny [feature-hashing](https://en.wikipedia.org/wiki/Feature_hashing) embedder I wrote that runs offline, instantly, for nothing. Is it as smart as a real sentence model? No. Can it tell a typo apart from a funding announcement? Easily. Good enough and free won this round.
+
+
+## My favorite accident: a fake model
+
+I built the model layer to be swappable. Point it at [Gemini](https://ai.google.dev/), [Groq](https://groq.com/), a local [Ollama](https://ollama.com/) model, whatever. I also added a fourth option called `mock`: a deliberately dumb, keyless "model" that classifies text with a handful of keyword rules.
+
+I added it so the tests wouldn't need an API key. What I did not expect was how much it would change the experience of building this. The whole pipeline, from collection to the dashboard to the weekly report, runs end to end with no keys, no network, and no cost. I could work on it on a train. The demo runs the second you clone it.
+
+Is the mock dumb? Very. It once labeled a job posting as a "pricing change" because the description had a dollar sign in it. But that's the point. It proves the plumbing works, and you drop in a real model when you want real judgment. I'm putting a mock mode in more of my projects after this one.
+
+
+## A database that's just a file
+
+Quick shoutout to [DuckDB](https://duckdb.org/), because I don't think enough people use it.
+
+I kept waiting for the part where I'd have to set up Postgres, manage a connection pool, babysit a server. It never came. DuckDB is an analytical database that lives in a single file on disk. I point [dbt](https://www.getdbt.com/) at that same file, model the raw data into clean tables, run my data-quality tests, and it's all just there. Copy the file and you've copied the database.
+
+It even handles the vector similarity for my de-duplication step, so I didn't need a separate vector database bolted on the side. For something meant to run for free, "the database is a file and the file is free" is hard to beat. If you only ever reach for Postgres, give the little one a weekend.
+
+
+## The part people skip
+
+Here's the opinion I'll actually defend: most data projects have bad frontends, and it's because the UI is an afterthought. We spend weeks on a clever pipeline, slap a default chart library on top, and call it a portfolio piece. I've done it. You've probably done it.
+
+Not this time. The dashboard got the same attention as the data layer. [Next.js](https://nextjs.org/), TypeScript, a real design system with light and dark mode that sticks, color-coded badges for each signal type that stay consistent everywhere, small significance dots, [Tremor](https://www.tremor.so/) charts, skeleton loaders instead of sad spinners, and a proper empty state for every list (because "no data yet" is a screen people will see, so make it decent).
+
+I tested it at 360 pixels wide and at 1440. The sidebar turns into a bottom bar on a phone. Tables turn into cards when there isn't room for a table. None of this is hard. It's just work that people skip, and skipping it is the difference between "nice side project" and "wait, you built that?"
+
+To grab screenshots for the README, I had [Playwright](https://playwright.dev/) drive a headless browser and shoot every page in light and dark, phone and desktop. Watching clean, consistent images land in a folder was the most satisfying part of the whole build.
+
+
+## A few things I picked up
+
+### Boring is underrated
+
+I went in half-wanting to build something flashy, and I came out sold on the boring choices. A fixed pipeline. A schema the model has to obey. A cheap hash before an expensive call. None of it is going to trend anywhere. All of it is why I'd actually trust the output.
+
+### A tight budget is a good editor
+
+Because I was stubborn about everything running for free, I kept landing on choices that turned out to be better, not just cheaper. The file database. The offline embedder. The fake model. The constraint pushed me toward the simplest thing that works instead of the fanciest.
+
+### Say what's broken
+
+Not everything works. The pricing chart is thin because I don't pull structured prices yet. The mock misreads things. Detecting when an old job posting disappears is still a "later." I wrote all of that into the docs on purpose. A project that admits its rough edges feels real. The demo where everything is suspiciously perfect is the one nobody believes.
+
+### Scrape like a decent guest
+
+One rule I held onto: public pages only, respect robots.txt and crawl delays, throttle, send an honest user agent, never touch anything behind a login. Being more aggressive would have been easy. I'd rather build something I'm comfortable explaining out loud.
+
+
+## So, that's compete
+
+Strip away the competitors and the charts, and what I really built is a small system for paying attention. It watches, it notices what changed, and it tells me the part worth reading. I like handing the tedious noticing to a machine so I get to keep the interesting part.
+
+If you want to poke at it yourself:
+
+<a className="button" href="https://steryl.yerradouani.me" target="_blank" rel="noopener noreferrer">Open the live demo</a>
+
+So what are you watching? Or what's the boring-but-right call you've been putting off on your own project because the flashy one is more fun to talk about? Tell me on my [contact page](/contact), I actually want to know.
+
+See you in the next one.
+
+Big love,  
+Yassine Erradouani
