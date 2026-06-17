@@ -64,8 +64,8 @@ export function Hero() {
               headline and copy stay legible over the image. */}
           <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
             <div
-              className="absolute inset-0 scale-110 bg-cover bg-center blur-2xl"
-              style={{ backgroundImage: "url(/heroBackground.jpg)", opacity: 0.55 }}
+              className="absolute inset-0 scale-110 bg-cover bg-center blur-2l"
+              style={{ backgroundImage: "url(/heroBackground.jpg)", opacity: 0.3 }}
             />
             <div className="absolute inset-0 bg-gradient-to-br from-card via-card/80 to-card/40" />
           </div>
