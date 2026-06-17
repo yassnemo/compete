@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_raw_pages
+    description: "Lightly cleaned passthrough of fetched page snapshots."
+  - name: stg_signals
+    description: "Typed LLM-extracted signals with embeddings carried through."
+    columns:
+      - name: signal_id
+        tests: [unique, not_null]
+      - name: competitor_id
+        tests: [not_null]
+      - name: significance
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+              quote: false
+  - name: stg_changes
+    description: "Typed detected changes."
+    columns:
+      - name: change_id
+        tests: [unique, not_null]
+  - name: stg_competitors
+    description: "Typed competitor records with tracked-URL count."
+    columns:
+      - name: competitor_id
+        tests: [unique, not_null]

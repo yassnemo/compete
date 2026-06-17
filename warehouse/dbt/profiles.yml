@@ -1,0 +1,13 @@
+# dbt profile for the file-based DuckDB warehouse.
+# The path is resolved relative to where dbt is invoked; override with the
+# COMPETE_DUCKDB_PATH env var (the pipeline and dbt share one .duckdb file).
+compete:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('COMPETE_DUCKDB_PATH', '../../data/compete.duckdb') }}"
+      threads: 4
+      extensions:
+        - httpfs
+        - json

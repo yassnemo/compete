@@ -1,0 +1,45 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Pipeline-owned raw layer in DuckDB (written by collectors)."
+    schema: raw
+    tables:
+      - name: raw_pages
+        description: "Fetched page snapshots, one row per (url, content) capture."
+        columns:
+          - name: id
+            tests: [unique, not_null]
+          - name: competitor_id
+            tests: [not_null]
+          - name: content_hash
+            tests: [not_null]
+      - name: competitors
+        description: "Operational competitor records mirrored from config / API."
+        columns:
+          - name: competitor_id
+            tests: [unique, not_null]
+      - name: signals
+        description: "LLM-extracted structured signals (one per changed snapshot)."
+        columns:
+          - name: id
+            tests: [unique, not_null]
+          - name: competitor_id
+            tests: [not_null]
+          - name: signal_type
+            tests: [not_null]
+      - name: changes
+        description: "Detected changes (snapshot-diff outcomes)."
+        columns:
+          - name: change_id
+            tests: [unique, not_null]
+          - name: change_type
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ["new", "updated", "removed"]
+      - name: llm_calls
+        description: "LLM call log for cost tracking."
+        columns:
+          - name: id
+            tests: [unique, not_null]

@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: dim_competitors
+    description: "Competitor dimension with signal-activity rollups."
+    columns:
+      - name: competitor_id
+        tests: [unique, not_null]
+      - name: name
+        tests: [not_null]
+
+  - name: fct_changes
+    description: "Detected changes enriched with signal title + weighted significance."
+    columns:
+      - name: change_id
+        tests: [unique, not_null]
+      - name: competitor_id
+        tests: [not_null]
+      - name: change_type
+        tests:
+          - accepted_values:
+              values: ["new", "updated", "removed"]
+      - name: signal_type
+        tests:
+          - accepted_values:
+              values:
+                - pricing_change
+                - product_launch
+                - blog_post
+                - press_release
+                - job_posting
+                - leadership_change
+                - funding_news
+                - other
+      - name: weighted_significance
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+              quote: false
+
+  - name: fct_hiring
+    description: "Job postings parsed from job-board snapshots (role + location)."
+    columns:
+      - name: role
+        tests: [not_null]
+      - name: competitor_id
+        tests: [not_null]
+
+  - name: fct_pricing_history
+    description: "Heuristically recovered price points from pricing signals."
+    columns:
+      - name: competitor_id
+        tests: [not_null]
+      - name: price
+        tests: [not_null]
+
+  - name: agg_weekly_competitor
+    description: "Weekly per-competitor rollup feeding the dashboard and reports."
+    columns:
+      - name: competitor_id
+        tests: [not_null]
+      - name: week
+        tests: [not_null]
+
+  - name: fct_signal_duplicates
+    description: "Embedding near-duplicate signal pairs (cosine >= 0.95)."
+    columns:
+      - name: similarity
+        tests: [not_null]
