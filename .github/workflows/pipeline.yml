@@ -1,0 +1,63 @@
+name: compete pipeline
+
+# Scheduled competitive-intelligence run: sync → collect → extract → dbt → report.
+on:
+  schedule:
+    - cron: "0 7 * * 1" # every Monday 07:00 UTC
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: "LLM provider (gemini|groq|ollama|mock)"
+        default: "mock"
+        required: false
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      COMPETE_LLM_PROVIDER: ${{ github.event.inputs.provider || 'gemini' }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      # Alerts are optional; set these repo secrets to enable.
+      COMPETE_ALERTS_ENABLED: ${{ secrets.SLACK_WEBHOOK_URL != '' && 'true' || 'false' }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Sync dependencies
+        run: uv sync --extra dbt --extra report
+
+      - name: Install Playwright Chromium
+        run: uv run playwright install --with-deps chromium
+
+      - name: Initialize warehouse
+        run: uv run compete init-db
+
+      - name: Run pipeline (sync → collect → extract → dbt → report)
+        run: uv run compete run-all --provider "$COMPETE_LLM_PROVIDER"
+
+      - name: Generate dbt docs
+        working-directory: warehouse/dbt
+        env:
+          COMPETE_DUCKDB_PATH: ${{ github.workspace }}/data/compete.duckdb
+        run: uv run --project ${{ github.workspace }} dbt docs generate --profiles-dir .
+
+      - name: Upload warehouse + reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: compete-warehouse
+          path: |
+            data/compete.duckdb
+            data/raw/**
+            warehouse/dbt/target/**
+          retention-days: 14
