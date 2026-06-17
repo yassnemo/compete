@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 
 import { CountUp } from "./count-up";
 import { LiveSignalFeed } from "./live-signal-feed";
-import { MeshBg } from "./texture";
 
 const container: Variants = {
   hidden: {},
@@ -61,11 +60,15 @@ export function Hero() {
       >
         {/* The pitch */}
         <Tile grain className="justify-between p-6 sm:p-10 lg:col-span-8 lg:row-span-5">
-          <MeshBg
-            variant="lime"
-            opacity={0.45}
-            className="[mask-image:linear-gradient(120deg,black,transparent_72%)]"
-          />
+          {/* Blurred photographic backdrop, with a card-toned scrim so the
+              headline and copy stay legible over the image. */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+            <div
+              className="absolute inset-0 scale-110 bg-cover bg-center blur-2xl"
+              style={{ backgroundImage: "url(/heroBackground.jpg)", opacity: 0.55 }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-card via-card/80 to-card/40" />
+          </div>
           <div className="relative">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
