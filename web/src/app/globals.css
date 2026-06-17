@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * One brand, everywhere. The system is exactly three things: warm BONE
+   * paper, warm INK, and one ELECTRIC LIME accent. The marketing site and the
+   * dashboard share these tokens so the product feels like one object.
+   */
+  :root {
+    --background: 43 38% 95%;
+    --foreground: 28 14% 10%;
+    --card: 42 40% 98%;
+    --card-foreground: 28 14% 10%;
+    --primary: 76 72% 42%;
+    --primary-foreground: 80 70% 9%;
+    --secondary: 40 26% 91%;
+    --secondary-foreground: 28 16% 12%;
+    --muted: 40 24% 90%;
+    --muted-foreground: 30 7% 38%;
+    --accent: 76 72% 42%;
+    --accent-foreground: 80 70% 9%;
+    --destructive: 7 70% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 36 20% 84%;
+    --input: 36 20% 84%;
+    --ring: 76 72% 42%;
+    --radius: 0.8rem;
+
+    --lime: 76 78% 52%;
+    /* ink/bone are constant surfaces (always dark/light) so white-on-ink
+       panels read correctly in both themes - do NOT swap these per theme. */
+    --ink: 28 12% 9%;
+    --bone: 43 38% 95%;
+  }
+
+  .dark {
+    --background: 28 10% 7%;
+    --foreground: 42 34% 94%;
+    --card: 28 9% 10%;
+    --card-foreground: 42 34% 94%;
+    --primary: 76 82% 56%;
+    --primary-foreground: 80 70% 8%;
+    --secondary: 28 8% 15%;
+    --secondary-foreground: 42 34% 94%;
+    --muted: 28 8% 15%;
+    --muted-foreground: 36 11% 64%;
+    --accent: 76 82% 56%;
+    --accent-foreground: 80 70% 8%;
+    --destructive: 7 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 32 9% 18%;
+    --input: 32 9% 18%;
+    --ring: 76 82% 56%;
+
+    --lime: 76 82% 56%;
+    --ink: 28 12% 9%;
+    --bone: 43 38% 95%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+
+  /* Numeric / timestamp values use a monospace face for that "data" feel. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-family:
+      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+}
+
+@layer utilities {
+  /* Thin, unobtrusive scrollbars to match the analytics aesthetic. */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 9999px;
+  }
+
+  /* Tighter wrapping for editorial display headlines. */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Single-hue lime gradient for headline accents - tonal, not rainbow. */
+  .text-gradient {
+    background-image: linear-gradient(100deg, hsl(68 80% 44%), hsl(var(--lime)), hsl(84 70% 58%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* The accent, usable on any surface (ink panels included). */
+  .text-lime-pop {
+    color: hsl(var(--lime));
+  }
+  .bg-lime-pop {
+    background-color: hsl(var(--lime));
+  }
+
+  /* Skip rendering below-fold sections until they approach the viewport.
+     Keeps continuous animations (marquees) from costing paint while offscreen. */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
+
+  /* Subtle film grain - overlaid on textured cards for an analog, non-AI feel. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: soft-light;
+    background-image: url("/textures/grain.svg");
+    background-size: 180px 180px;
+  }
+
+  /* Faint dotted/grid backdrop for hero + section depth. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.6) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.6) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  .bg-dots {
+    background-image: radial-gradient(hsl(var(--border) / 0.9) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /* Horizontal fade mask for marquees. */
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 12%,
+      black 88%,
+      transparent
+    );
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  }
+
+  /* Pause CSS marquees on hover. */
+  .pause-on-hover:hover [data-marquee] {
+    animation-play-state: paused;
+  }
+}
+
+/* Respect users who prefer reduced motion: kill the decorative loops. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee-vertical,
+  .animate-float,
+  .animate-aurora,
+  .animate-pulse-ring {
+    animation: none !important;
+  }
+}
