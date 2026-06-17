@@ -1,0 +1,50 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.uv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Secrets / env ---
+.env
+.env.local
+*.local.env
+
+# --- Data / warehouse (generated) ---
+data/
+*.duckdb
+*.duckdb.wal
+warehouse/dbt/target/
+warehouse/dbt/dbt_packages/
+warehouse/dbt/logs/
+
+# --- Node / Next.js ---
+web/node_modules/
+web/.next/
+web/out/
+web/.turbo/
+web/coverage/
+web/*.tsbuildinfo
+npm-debug.log*
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Local tooling ---
+.claude/
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Playwright ---
+playwright-report/
+test-results/
