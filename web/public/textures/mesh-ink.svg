@@ -1,13 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid slice">
-  <defs>
-    <filter id="b" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="140" />
-    </filter>
-  </defs>
-  <g filter="url(#b)">
-    <circle cx="380" cy="320" r="420" fill="#3A3530" />
-    <circle cx="1200" cy="300" r="360" fill="#C7F23E" fill-opacity="0.35" />
-    <circle cx="1000" cy="980" r="420" fill="#26221E" />
-    <circle cx="300" cy="960" r="320" fill="#55504A" fill-opacity="0.8" />
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1600 1200"><defs><filter id="b" width="140%" height="140%" x="-20%" y="-20%"><feGaussianBlur stdDeviation="140"/></filter></defs><g filter="url(#b)"><circle cx="380" cy="320" r="420" fill="#3A3530"/><circle cx="1200" cy="300" r="360" fill="#C7F23E" fill-opacity=".35"/><circle cx="1000" cy="980" r="420" fill="#26221E"/><circle cx="300" cy="960" r="320" fill="#55504A" fill-opacity=".8"/></g></svg>
