@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight, Radar } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -42,9 +43,14 @@ export function LandingNav() {
       >
         {/* Brand + status */}
         <Link href="/" className="group flex items-center gap-2.5 pl-1">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground transition-transform group-hover:rotate-12">
-            <Radar className="h-4 w-4" />
-          </span>
+          <Image
+            src="/compete-logo.svg"
+            alt="compete logo"
+            width={36}
+            height={36}
+            priority
+            className="h-9 w-9 rounded-xl transition-transform group-hover:rotate-12"
+          />
           <span className="flex flex-col leading-none">
             <span className="text-[0.95rem] font-semibold tracking-tight">compete</span>
             <span className="mt-0.5 hidden text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground sm:block">

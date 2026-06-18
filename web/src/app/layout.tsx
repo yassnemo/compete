@@ -21,11 +21,22 @@ const serif = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://compete.local"),
-  title: "compete - Competitive Intelligence, on autopilot",
+  title: {
+    default: "compete — Competitive Intelligence, on autopilot",
+    template: "%s · compete",
+  },
   description:
     "Track every move your competitors make. compete collects, extracts, and ranks meaningful signals - pricing, hiring, launches, messaging - into one calm dashboard.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/compete-logo1.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/compete-logo1.svg",
+  },
   openGraph: {
-    title: "compete - Competitive Intelligence, on autopilot",
+    title: "compete — Competitive Intelligence, on autopilot",
     description:
       "Track every move your competitors make. Pricing, hiring, launches, messaging - ranked and explained.",
     type: "website",

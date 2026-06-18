@@ -1,4 +1,5 @@
-import { ArrowUpRight, Radar } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 const COLS: { heading: string; links: { label: string; href: string }[] }[] = [
@@ -25,13 +26,28 @@ const COLS: { heading: string; links: { label: string; href: string }[] }[] = [
 export function LandingFooter() {
   return (
     <footer className="relative overflow-hidden px-3 pb-6 pt-16 sm:px-5">
-      <div className="mx-auto max-w-[1640px] rounded-[2rem] border border-border bg-card p-8 sm:p-12">
+      <div className="relative mx-auto max-w-[1640px] overflow-hidden rounded-[2rem] border border-border bg-card p-8 sm:p-12">
+        {/* Blurred photographic backdrop, with a card-toned scrim so the
+            footer content and oversized wordmark stay legible over the image. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+          <div
+            className="absolute inset-0 scale-110 bg-cover bg-center blur-1xl"
+            style={{ backgroundImage: "url(/footerBackground.jpg)", opacity: 0.3 }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-card via-card/80 to-card/40" />
+        </div>
+
+        <div className="relative z-10">
         <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
           <div className="col-span-2">
             <div className="flex items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-                <Radar className="h-4 w-4" />
-              </span>
+              <Image
+                src="/compete-logo.svg"
+                alt="compete logo"
+                width={36}
+                height={36}
+                className="h-9 w-9 rounded-xl"
+              />
               <span className="text-lg font-semibold tracking-tight">compete</span>
             </div>
             <p className="mt-4 max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground">
@@ -88,6 +104,7 @@ export function LandingFooter() {
               <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </a>
           </p>
+        </div>
         </div>
       </div>
     </footer>
